@@ -59,6 +59,7 @@ void handle_type2(int sig_no);                                      // handles r
 
 void set_SIGINT_handler();                                          // sets SIGINT handler
 void handle_SIGINT(int sig_no);                                     // handles SIGINT (Ctrl+C)
+void handle_SIGCHLD(int sig_no);                                    // handles SIGCHLD
 
 void create_child_process();                                        // creates child process
 
@@ -140,6 +141,14 @@ void main_type1(){
         exit(400);
     }
 
+    sa.sa_handler = handle_SIGCHLD;
+    if(sigaction(SIGCHLD, &sa, NULL) == -1) {
+        perror("En error occurred while creating handler for SIGCHLD");
+        exit(401);
+    }
+
+
+
     // sends MSG_SIGNAL L times
     for(int i = 0; i < L; i++){
 
@@ -159,11 +168,16 @@ void main_type1(){
     // logging
     if(LOG_MAIN) printf(RED "[MAIN] Signal TER_SIGNAL sent\n" RESET);
 
-    // display main info
-    sleep(1);
-    printf(GREEN "Main received %d signals and sent %d\n" RESET, counter_main_received, counter_main_sent);
+    // wait for child process
+    sigset_t mask;
+    sigfillset(&mask);
+    sigdelset(&mask, SIGCHLD);
+    sigdelset(&mask, SIGINT);
 
-    exit(0);
+    // waiting for end <=> SIGCHLD || SIGINT
+    while(1)
+        sigsuspend(&mask);
+
 }
 
 void main_type2(){
@@ -304,6 +318,13 @@ void handle_SIGINT(int sig_no){
 
     exit(0);
 
+}
+
+void handle_SIGCHLD(int sig_no){
+    // display main info
+    printf(GREEN "Main received %d signals and sent %d\n" RESET, counter_main_received, counter_main_sent);
+
+    exit(0);
 }
 
 // =========================================================================
