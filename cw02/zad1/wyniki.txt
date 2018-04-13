@@ -1,0 +1,218 @@
+
+====================================== KOPIOWANIE ======================================
+
+
+ -- Rekordy 4 bajtowe
+
+Copying 'random.data' file with 4000000 records of size 4 to 'sys.data', using sys...
+Real:	6.739260
+User:	0.845380
+System:	5.893870
+
+Copying 'random.data' file with 4000000 records of size 4 to 'lib.data', using lib...
+Real:	0.166314
+User:	0.166302
+System:	0.000000
+
+Copying 'random.data' file with 10000000 records of size 4 to 'sys.data', using sys...
+Real:	15.644341
+User:	2.502045
+System:	13.142286
+
+Copying 'random.data' file with 10000000 records of size 4 to 'lib.data', using lib...
+Real:	0.380312
+User:	0.328440
+System:	0.051860
+
+
+
+
+ -- Rekordy 512 bajtowe
+
+Copying 'random.data' file with 1000000 records of size 512 to 'sys.data', using sys...
+Real:	1.865736
+User:	0.235585
+System:	1.630137
+
+Copying 'random.data' file with 1000000 records of size 512 to 'lib.data', using lib...
+Real:	0.576325
+User:	0.116963
+System:	0.459348
+
+Copying 'random.data' file with 5000000 records of size 512 to 'sys.data', using sys...
+Real:	10.975035
+User:	1.108271
+System:	9.866753
+
+Copying 'random.data' file with 5000000 records of size 512 to 'lib.data', using lib...
+Real:	3.493436
+User:	0.776822
+System:	2.716602
+
+
+
+
+ -- Rekordy 4096 bajtowe
+
+Copying 'random.data' file with 500000 records of size 4096 to 'sys.data', using sys...
+Real:	2.168055
+User:	0.097670
+System:	2.070369
+
+Copying 'random.data' file with 500000 records of size 4096 to 'lib.data', using lib...
+Real:	2.632934
+User:	0.242294
+System:	2.390629
+
+Copying 'random.data' file with 1000000 records of size 4096 to 'sys.data', using sys...
+Real:	4.874920
+User:	0.301095
+System:	4.573814
+
+Copying 'random.data' file with 1000000 records of size 4096 to 'lib.data', using lib...
+Real:	4.979137
+User:	0.516978
+System:	4.462148
+
+
+
+
+ -- Rekordy 8192 bajtowe
+
+Copying 'random.data' file with 100000 records of size 8192 to 'sys.data', using sys...
+Real:	0.665262
+User:	0.024737
+System:	0.640515
+
+Copying 'random.data' file with 100000 records of size 8192 to 'lib.data', using lib...
+Real:	0.688859
+User:	0.054280
+System:	0.634568
+
+Copying 'random.data' file with 500000 records of size 8192 to 'sys.data', using sys...
+Real:	4.491002
+User:	0.152036
+System:	4.338954
+
+Copying 'random.data' file with 500000 records of size 8192 to 'lib.data', using lib...
+Real:	4.877830
+User:	0.372314
+System:	4.505505
+
+
+
+
+ -- Wnioski
+
+Powyzsze dane pokazują, że przy kopiowaniu danych małymi blokami (4, 512) funkcje biblioteczne są znacznie szybsze od systemowych, lecz przy większych blokach (4096, 8192) czsy są bardzo podobne, a nawet funkcje systemowe są nieznacznie szybsze.
+Może to być spowodowane bufforowaniem danych przez funkcje biblioteczne.
+
+
+====================================== SORTOWANIE ======================================
+
+ -- Rekordy 4 bajtowe
+
+Sorting 'sys.data' file with 5000 records of size 4, using sys...
+Real:	12.345412
+User:	3.239967
+System:	9.105433
+
+Sorting 'lib.data' file with 5000 records of size 4, using lib...
+Real:	15.722588
+User:	4.992459
+System:	10.730119
+
+Sorting 'sys.data' file with 10000 records of size 4, using sys...
+Real:	50.240835
+User:	15.555851
+System:	34.684972
+
+Sorting 'lib.data' file with 10000 records of size 4, using lib...
+Real:	63.279859
+User:	22.815651
+System:	40.464194
+
+
+
+
+ -- Rekordy 512 bajtowe
+
+Sorting 'sys.data' file with 3000 records of size 512, using sys...
+Real:	4.617572
+User:	1.137528
+System:	3.480033
+
+Sorting 'lib.data' file with 3000 records of size 512, using lib...
+Real:	5.852844
+User:	1.667779
+System:	4.185055
+
+Sorting 'sys.data' file with 6000 records of size 512, using sys...
+Real:	18.522011
+User:	4.784253
+System:	13.737746
+
+Sorting 'lib.data' file with 6000 records of size 512, using lib...
+Real:	23.599978
+User:	7.449130
+System:	16.150837
+
+
+
+
+ -- Rekordy 4096 bajtowe
+
+Sorting 'sys.data' file with 3000 records of size 4096, using sys...
+Real:	5.658618
+User:	1.071483
+System:	4.587124
+
+Sorting 'lib.data' file with 3000 records of size 4096, using lib...
+Real:	6.217358
+User:	1.375917
+System:	4.841431
+
+Sorting 'sys.data' file with 6000 records of size 4096, using sys...
+Real:	23.582540
+User:	4.365735
+System:	19.216796
+
+Sorting 'lib.data' file with 6000 records of size 4096, using lib...
+Real:	25.041915
+User:	5.348823
+System:	19.693081
+
+
+
+
+ -- Rekordy 8192 bajtowe
+
+Sorting 'sys.data' file with 3000 records of size 8192, using sys...
+Real:	8.287026
+User:	1.107743
+System:	7.179270
+
+Sorting 'lib.data' file with 3000 records of size 8192, using lib...
+Real:	8.436521
+User:	1.339852
+System:	7.096658
+
+Sorting 'sys.data' file with 6000 records of size 8192, using sys...
+Real:	33.474831
+User:	4.036154
+System:	29.438666
+
+Sorting 'lib.data' file with 6000 records of size 8192, using lib...
+Real:	33.249584
+User:	5.027995
+System:	28.221580
+
+
+
+
+ -- Wnioski
+
+Przy sortowaniu danych widzimy, że w praktycznie każdym przypadku funkcje systemowe są delikatnie szybsze od bibliotecznych, w szczególności nie widać tu przewagi którą miały funkcje biblioteczne przy kopiowaniu małych bloków.
+Spowodowane jest to prawdopodobnie tym, że gdy mamy do czynienia z 'równoczesnym' odczytem i zapisem z pliku, funkcje biblioteczne nie buforują tego pliku, a zatem ich przewaga zanika.
+
+
