@@ -1,0 +1,73 @@
+===================================================================
+======================== TEST STATIC ==============================
+===================================================================
+
+Testing statically allocated array of size 2000 (block size: 50)...
+
+[TIME][static init]     T: 0.000059 U: 0.000048 S: 0.000000
+Command: add 1000
+[TIME][static add]      T: 0.004705 U: 0.004696 S: 0.000000
+Command: remove 1000
+[TIME][static remove]   T: 0.000026 U: 0.000020 S: 0.000000
+Command: remove_and_add 1000
+[TIME][static init]     T: 0.003141 U: 0.003133 S: 0.000000
+
+Testing dynamically allocated array of size 2000 (block size: 50)...
+
+[TIME][dynamic init]    T: 0.000063 U: 0.000000 S: 0.000050
+Command: add 1000
+[TIME][dynamic add]     T: 0.003585 U: 0.003395 S: 0.000177
+Command: remove 1000
+[TIME][dynamic remove]  T: 0.000172 U: 0.000082 S: 0.000082
+Command: remove_and_add 1000
+[TIME][dynamic init]    T: 0.005650 U: 0.004949 S: 0.000686
+
+
+===================================================================
+======================== TEST SHARED ==============================
+===================================================================
+
+Testing statically allocated array of size 2000 (block size: 50)...
+
+[TIME][static init]     T: 0.000068 U: 0.000000 S: 0.000055
+Command: add 1000
+[TIME][static add]      T: 0.006199 U: 0.005076 S: 0.001111
+Command: remove 1000
+[TIME][static remove]   T: 0.000045 U: 0.000019 S: 0.000019
+Command: remove_and_add 1000
+[TIME][static init]     T: 0.003058 U: 0.003048 S: 0.000000
+
+Testing dynamically allocated array of size 2000 (block size: 50)...
+
+[TIME][dynamic init]    T: 0.000062 U: 0.000026 S: 0.000026
+Command: add 1000
+[TIME][dynamic add]     T: 0.003909 U: 0.003256 S: 0.000642
+Command: remove 1000
+[TIME][dynamic remove]  T: 0.000179 U: 0.000114 S: 0.000057
+Command: remove_and_add 1000
+[TIME][dynamic init]    T: 0.005918 U: 0.001590 S: 0.004316
+
+
+===================================================================
+======================== TEST LOADED ==============================
+===================================================================
+
+Testing statically allocated array of size 2000 (block size: 50)...
+
+[TIME][static init]     T: 0.000055 U: 0.000046 S: 0.000000
+Command: add 1000
+[TIME][static add]      T: 0.004409 U: 0.004402 S: 0.000000
+Command: remove 1000
+[TIME][static remove]   T: 0.000026 U: 0.000020 S: 0.000000
+Command: remove_and_add 1000
+[TIME][static init]     T: 0.002724 U: 0.002716 S: 0.000000
+
+Testing dynamically allocated array of size 2000 (block size: 50)...
+
+[TIME][dynamic init]    T: 0.000066 U: 0.000000 S: 0.000054
+Command: add 1000
+[TIME][dynamic add]     T: 0.004705 U: 0.004161 S: 0.000531
+Command: remove 1000
+[TIME][dynamic remove]  T: 0.000172 U: 0.000082 S: 0.000082
+Command: remove_and_add 1000
+[TIME][dynamic init]    T: 0.003246 U: 0.003237 S: 0.000000
