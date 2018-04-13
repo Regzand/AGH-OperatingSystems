@@ -1,0 +1,4 @@
+ls -la
+
+./tests/test_as 30
+./tests/test_cpu
