@@ -1,0 +1,3 @@
+echo qe oe ad | wc
+ls / -l | grep ^l
+ls -l | grep main | sort -r | head -3
