@@ -4,6 +4,11 @@
 #include <sys/stat.h>
 #include <sys/msg.h>
 #include <sys/ipc.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <string.h>
+#include <time.h>
+#include <errno.h>
 
 #include "settings.h"
 
@@ -13,94 +18,207 @@ int server_status = 1;
 // server queue id
 int server_queue_id = -1;
 
-void handle_request_init(char* request){
+// number of clients
+int clients_count = 0;
 
-    // logging
-    printf("Received INIT request\n");
+// clients
+struct client {
+    int pid;
+    int queue;
+};
 
-    // TODO
+struct client clients[MAX_CLIENTS];
+
+int get_client_queue(int pid){
+    for(int i = 0; i < clients_count; i++)
+        if(clients[i].pid == pid)
+            return clients[i].queue;
+    return -1;
 }
 
-void handle_request_end(char* request){
+void send_response(int pid, char* msg){
 
-    // logging
-    printf("Received END request\n");
+    // create REQUEST_RESPONSE
+    struct request req;
+    req.type = REQUEST_RESPONSE;
+    req.pid = getpid();
 
-    // TODO
+    // copy msg
+    if(msg != NULL)
+        strcpy(req.message, msg);
+
+    // send response
+    if(msgsnd(get_client_queue(pid), &req, SIZE_OF_REQUEST, 0) == -1){
+        perror("An error occurred while sending response");
+        exit(1);
+    }
+
 }
 
-void handle_request_stop(char* request){
+void handle_request_init(struct request req){
+
+    // get client id
+    int client_id = clients_count++;
+    if(client_id >= MAX_CLIENTS){
+        fprintf(stderr, "Client limit exceeded!\n");
+        return;
+    }
+
+    // save client info
+    clients[client_id].pid = req.pid;
+    clients[client_id].queue = atoi(req.message);
+
+    // send response
+    send_response(req.pid, NULL);
 
     // logging
-    printf("Received STOP request\n");
+    printf("Connected to client (pid: %d, queue: %d)\n", clients[client_id].pid, clients[client_id].queue);
 
-    // TODO
 }
 
-void handle_request_mirror(char* request){
+void handle_request_end(struct request req){
 
-    // logging
-    printf("Received MIRROR request\n");
-
-    // TODO
+    // set server status
+    server_status = 0;
 }
 
-void handle_request_calc(char* request){
+void handle_request_stop(struct request req){
 
-    // logging
-    printf("Received CALC request\n");
-
-    // TODO
+    // disable client
+    for(int i = 0; i < clients_count; i++){
+        if(clients[i].pid == req.pid){
+            clients[i].pid = -1;
+            clients[i].queue = -1;
+        }
+    }
 }
 
-void handle_request_time(char* request){
+void handle_request_mirror(struct request req){
 
-    // logging
-    printf("Received TIME request\n");
+    int len = strlen(req.message);
 
-    // TODO
+    char msg[MAX_MESSAGE];
+
+    for(int i = 0; i < len; i++)
+        msg[i] = req.message[len-i-1];
+
+    msg[len] = '\0';
+
+    // send back the message
+    send_response(req.pid, msg);
+
+}
+
+void handle_request_calc(struct request req) {
+
+    // get tokens
+    char *operation = strtok(req.message, " ");
+    char *a = strtok(NULL, " ");
+    char *b = strtok(NULL, " ");
+
+    if (operation == NULL || a == NULL || b == NULL) {
+        send_response(req.pid, "Missing arguments");
+        return;
+    }
+
+    // parse arguments
+    int A = atoi(a);
+    int B = atoi(b);
+
+    // calculate
+    int ans;
+
+    if (strcmp(operation, "ADD") == 0)
+        ans = A + B;
+
+    else if (strcmp(operation, "SUB") == 0)
+        ans = A - B;
+
+    else if (strcmp(operation, "MUL") == 0)
+        ans = A * B;
+
+    else if (strcmp(operation, "DIV") == 0) {
+
+        if(B == 0){
+            send_response(req.pid, "Nope, I'll not crash for you.");
+            return;
+        }
+
+        ans = A / B;
+
+    }else{
+        send_response(req.pid, "Unknown operation");
+        return;
+    }
+
+    char msg[MAX_MESSAGE];
+    sprintf(msg, "%d", ans);
+    send_response(req.pid, msg);
+}
+
+void handle_request_time(struct request req){
+
+    // gets current time
+    time_t current_time = time(NULL);
+
+    // converts time to string in local format
+    char* c_time_string = ctime(&current_time);
+
+    // sends response
+    send_response(req.pid, c_time_string);
+
 }
 
 void handle_requests(){
 
     // while server is running
-    while(server_status){
+    while(1){
+
+        int flag = 0;
+        if(server_status == 0)
+            flag = IPC_NOWAIT;
 
         // read next request
-        message msg;
-        if(msgrcv(server_queue_id, &msg, sizeof(char) * MAX_MESSAGE, 0, 0) == -1){
+        request req;
+        if(msgrcv(server_queue_id, &req, SIZE_OF_REQUEST, 0, flag) == -1){
+
+            if(errno == ENOMSG)
+                break;
+
             perror("An error occurred while reading request from server queue");
             exit(1);
         }
 
+        printf("[REQUEST] type: %ld\tpid: %d\t msg: %s\n", req.type, req.pid, req.message);
+
         // handle request
-        switch(msg.type){
+        switch(req.type){
             case REQUEST_INIT:
-                handle_request_init(msg.message);
+                handle_request_init(req);
                 break;
 
             case REQUEST_END:
-                handle_request_end(msg.message);
+                handle_request_end(req);
                 break;
 
             case REQUEST_STOP:
-                handle_request_stop(msg.message);
+                handle_request_stop(req);
                 break;
 
             case REQUEST_MIRROR:
-                handle_request_mirror(msg.message);
+                handle_request_mirror(req);
                 break;
 
             case REQUEST_CALC:
-                handle_request_calc(msg.message);
+                handle_request_calc(req);
                 break;
 
             case REQUEST_TIME:
-                handle_request_time(msg.message);
+                handle_request_time(req);
                 break;
 
             default:
-                printf("Received request of unknown type %ld: %s\n", msg.type, msg.message);
+                printf("Received request of unknown type: %ld, pid: %d, msg: %s\n", req.type, req.pid, req.message);
         }
 
     }
@@ -143,6 +261,9 @@ void setup_server_queue(){
         perror("An error occurred while creating server queue");
         exit(1);
     }
+
+    // logging
+    printf("Created server queue (id: %d)\n", server_queue_id);
 
 }
 
