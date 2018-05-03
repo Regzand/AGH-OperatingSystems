@@ -1,13 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <unistd.h>
 
 #include "shop.c"
 
-void handle_shop(){
-    // TODO
-}
+int shop_semaphore = -1;
 
-void handle_atexit(){
+void handle_shop(){
     // TODO
 }
 
@@ -16,7 +20,19 @@ void cleanup_shop(){
 }
 
 void cleanup_semaphores(){
-    // TODO
+
+    // remove semaphore
+    if(semctl(shop_semaphore, 0, IPC_RMID) == -1)
+        perror("An error occurred while removing semaphore");
+
+}
+
+void handle_exit(){
+
+    // clean up
+    cleanup_semaphores();
+    cleanup_shop();
+
 }
 
 void setup_shop(){
@@ -24,11 +40,42 @@ void setup_shop(){
 }
 
 void setup_semaphores(){
-    // TODO
+
+    // get home path
+    char* home = getenv("HOME");
+
+    // get shop semaphore key
+    int key = ftok(home, SHOP_SEMAPHORE_NUMBER);
+    if(key == -1){
+        perror("An error occurred while creating shop semaphore key");
+        exit(1);
+    }
+
+    // create semaphore
+    shop_semaphore = semget(key, 1, IPC_CREAT | IPC_EXCL | S_IWUSR | S_IRUSR);
+    if(shop_semaphore == -1){
+        perror("An error occurred while creating semaphore");
+        exit(1);
+    }
+
+    // initialize semaphore
+    union semun arg;
+    arg.val = 0;
+    if(semctl(shop_semaphore, 0, SETVAL, arg) == -1){
+        perror("An error occurred while initializing semaphore");
+        exit(1);
+    }
+
 }
 
 void setup_atexit(){
-    // TODO
+
+    // sets up function to be called at exit
+    if(atexit(handle_exit) != 0){
+        perror("An error occurred while setting up atexit function");
+        exit(1);
+    }
+
 }
 
 int main(int argc, char** args){
