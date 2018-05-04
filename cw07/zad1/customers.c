@@ -4,18 +4,25 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <sys/shm.h>
 #include <unistd.h>
 
 #include "shop.h"
 
 int shop_semaphore = -1;
 
+struct shop_data* shop;
+
 void visit_shop(){
     // TODO
 }
 
 void cleanup_shop(){
-    // TODO
+
+    // unmount shared memory
+    if(shmdt(shop) == -1)
+        perror("An error occurred while unmounting shared memory");
+
 }
 
 void cleanup_semaphores(){
@@ -31,7 +38,21 @@ void handle_exit(){
 }
 
 void setup_shop(){
-    // TODO
+
+    // get shared memory
+    int shmid = shmget(get_shop_key(), 0, 0);
+    if(shmid == -1){
+        perror("An error occurred while getting shared memory");
+        exit(1);
+    }
+
+    // mount shared memory
+    shop = (struct shop_data*) shmat(shmid, NULL, 0);
+    if(shop == (struct shop_data*) -1){
+        perror("An error occurred while mounting shared memory");
+        exit(1);
+    }
+
 }
 
 void setup_semaphores(){
