@@ -28,17 +28,31 @@ void give_semaphore(int sem_id, int sem_num){
 }
 
 void queue_init(struct shop_data* shop, int size){
-    // TODO
+    shop -> queue_size = size;
+    shop -> queue_head = 0;
+    shop -> queue_tail = 0;
 }
 
 void queue_push(struct shop_data* shop, int value){
-    // TODO
+    if(queue_length(shop) >= shop -> queue_size) {
+        fprintf(stderr, "Queue size exceeded!\n");
+        exit(1);
+    }
+
+    shop -> queue[(shop -> queue_tail) % (shop -> queue_size)] = value;
+    shop -> queue_tail += 1;
 }
 
 int queue_pop(struct shop_data* shop){
-    // TODO
+    if(queue_length(shop) == 0)
+        return -1;
+
+    int result = shop -> queue[(shop -> queue_head) % (shop -> queue_size)];
+    shop -> queue_head += 1;
+
+    return result;
 }
 
 int queue_length(struct shop_data* shop){
-    // TODO
+    return shop -> queue_tail - shop -> queue_head;
 }

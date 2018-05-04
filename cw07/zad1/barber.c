@@ -68,7 +68,8 @@ void setup_shop(int seats_number){
         exit(1);
     }
 
-    // TODO: initialize shop
+    // setup shop queue
+    queue_init(shop, seats_number);
 
 }
 
