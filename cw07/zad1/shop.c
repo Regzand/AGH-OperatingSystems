@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ipc.h>
+#include <sys/types.h>
+#include <sys/sem.h>
 
 #include "shop.h"
 
@@ -20,11 +22,29 @@ int get_shop_key(){
 }
 
 void take_semaphore(int sem_id, int sem_num){
-    // TODO
+
+    struct sembuf sops;
+    sops.sem_num = sem_num;
+    sops.sem_op = -1;
+    sops.sem_flg = SEM_UNDO;
+    if(semop(sem_id, &sops, 1) == -1){
+        perror("An error occurred while taking semaphore");
+        exit(1);
+    }
+
 }
 
 void give_semaphore(int sem_id, int sem_num){
-    // TODO
+
+    struct sembuf sops;
+    sops.sem_num = sem_num;
+    sops.sem_op = 1;
+    sops.sem_flg = 0;
+    if(semop(sem_id, &sops, 1) == -1){
+        perror("An error occurred while giving semaphore");
+        exit(1);
+    }
+
 }
 
 void queue_init(struct shop_data* shop, int size){
