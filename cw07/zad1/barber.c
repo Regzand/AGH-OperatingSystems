@@ -27,6 +27,11 @@ void cleanup_semaphores(){
 
 }
 
+void handle_sigint(int signo){
+    printf("Received SIGINT - closing barber shop\n");
+    exit(0);
+}
+
 void handle_exit(){
 
     // clean up
@@ -68,6 +73,19 @@ void setup_semaphores(){
 
 }
 
+void setup_sigint(){
+
+    // sets up SIGINT handler
+    struct sigaction sa;
+    sa.sa_handler = handle_sigint;
+    sigemptyset(&sa.sa_mask);
+    if(sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("An error occurred while setting up handler for SIGINT");
+        exit(1);
+    }
+
+}
+
 void setup_atexit(){
 
     // sets up function to be called at exit
@@ -91,6 +109,7 @@ int main(int argc, char** args){
 
     // setup
     setup_atexit();
+    setup_sigint();
     setup_semaphores();
     setup_shop();
 
