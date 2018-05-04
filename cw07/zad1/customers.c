@@ -6,7 +6,7 @@
 #include <sys/sem.h>
 #include <unistd.h>
 
-#include "shop.c"
+#include "shop.h"
 
 int shop_semaphore = -1;
 
@@ -36,18 +36,8 @@ void setup_shop(){
 
 void setup_semaphores(){
 
-    // get home path
-    char* home = getenv("HOME");
-
-    // get shop semaphore key
-    int key = ftok(home, SHOP_SEMAPHORE_NUMBER);
-    if(key == -1){
-        perror("An error occurred while creating shop semaphore key");
-        exit(1);
-    }
-
     // get semaphore
-    shop_semaphore = semget(key, 0, 0);
+    shop_semaphore = semget(get_shop_key(), 0, 0);
     if(shop_semaphore == -1){
         perror("An error occurred while getting semaphore");
         exit(1);

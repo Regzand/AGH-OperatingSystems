@@ -1,5 +1,20 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
 
-#define SHOP_SEMAPHORE_NUMBER  13
+#include "shop.h"
 
-// needed for semaphore initialization
-typedef union semun { int val; } semun;
+int get_shop_key(){
+
+    // get home path
+    char* home = getenv("HOME");
+
+    // get shop semaphore key
+    int key = ftok(home, SHOP_KEY_NUMBER);
+    if(key == -1){
+        perror("An error occurred while creating shop key");
+        exit(1);
+    }
+
+    return key;
+}
