@@ -11,7 +11,8 @@
 typedef struct shop_data {
     int status;
     int queue_size;
-    int queue_index;
+    int queue_head;
+    int queue_tail;
     int queue[SHOP_MAX_SEATS];
 } shop_data;
 
@@ -20,5 +21,15 @@ typedef union semun { int val; } semun;
 
 // creates shop key (System V)
 int get_shop_key();
+
+// handling shop semaphores
+void take_semaphore(int sem_id, int sem_num);
+void give_semaphore(int sem_id, int sem_num);
+
+// queue handling functions
+void queue_init(struct shop_data* shop, int size);
+void queue_push(struct shop_data* shop, int value);
+int queue_length(struct shop_data* shop);
+int queue_pop(struct shop_data* shop);
 
 #endif
