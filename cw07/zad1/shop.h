@@ -2,10 +2,14 @@
 #define SHOP_H
 
 // number used in creating shop key
-#define SHOP_KEY_NUMBER  13
+#define SHOP_KEY_NUMBER         13
 
 // maximum seats in waiting room
-#define SHOP_MAX_SEATS   20
+#define SHOP_MAX_SEATS          20
+
+// shop statuses
+#define SHOP_STATUS_SLEEPING    1
+#define SHOP_STATUS_WORKING     2
 
 // shop shared memory
 typedef struct shop_data {
@@ -31,5 +35,12 @@ void queue_init(struct shop_data* shop, int size);
 void queue_push(struct shop_data* shop, int value);
 int queue_length(struct shop_data* shop);
 int queue_pop(struct shop_data* shop);
+
+// signals
+void wait_for_signal();
+void send_signal(int pid);
+
+// timing function
+char* get_time();
 
 #endif

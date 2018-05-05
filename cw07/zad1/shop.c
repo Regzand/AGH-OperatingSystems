@@ -3,6 +3,8 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/sem.h>
+#include <signal.h>
+#include <time.h>
 
 #include "shop.h"
 
@@ -75,4 +77,47 @@ int queue_pop(struct shop_data* shop){
 
 int queue_length(struct shop_data* shop){
     return shop -> queue_tail - shop -> queue_head;
+}
+
+void wait_for_signal(){
+
+    // creates mask
+    sigset_t mask;
+    sigfillset(&mask);
+    sigdelset(&mask, SIGUSR1);
+    sigdelset(&mask, SIGINT);
+
+    // waits for signal SIGUSR1 or SIGINT
+    sigsuspend(&mask);
+
+}
+
+void send_signal(int pid){
+
+    if(kill(pid, SIGUSR1) == -1){
+        perror("An error occurred while sending signal");
+        exit(1);
+    }
+
+}
+
+char* get_time(){
+
+    // get time
+    struct timespec time;
+    if(clock_gettime(CLOCK_MONOTONIC, &time) == -1){
+        perror("An error occurred while getting monotonic time");
+        exit(1);
+    }
+
+    long N = time.tv_nsec / 1000;
+    long S = time.tv_sec % 60;
+    long M = time.tv_sec / 60 % 60;
+    long H = time.tv_sec / 60 / 60;
+
+    // time to string
+    char* result = malloc(sizeof(char) * 16);
+    sprintf(result, "%02ld:%02ld:%02ld.%06ld", H, M, S, N);
+
+    return result;
 }
