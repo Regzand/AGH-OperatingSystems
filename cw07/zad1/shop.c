@@ -28,7 +28,7 @@ void take_semaphore(int sem_id, int sem_num){
     struct sembuf sops;
     sops.sem_num = sem_num;
     sops.sem_op = -1;
-    sops.sem_flg = SEM_UNDO;
+    sops.sem_flg = 0;
     if(semop(sem_id, &sops, 1) == -1){
         perror("An error occurred while taking semaphore");
         exit(1);
@@ -79,22 +79,9 @@ int queue_length(struct shop_data* shop){
     return shop -> queue_tail - shop -> queue_head;
 }
 
-void wait_for_signal(){
-
-    // creates mask
-    sigset_t mask;
-    sigfillset(&mask);
-    sigdelset(&mask, SIGUSR1);
-    sigdelset(&mask, SIGINT);
-
-    // waits for signal SIGUSR1 or SIGINT
-    sigsuspend(&mask);
-
-}
-
 void send_signal(int pid){
-
-    if(kill(pid, SIGUSR1) == -1){
+    union sigval sv;
+    if(sigqueue(pid, SHOP_SIGNAL, sv) == -1){
         perror("An error occurred while sending signal");
         exit(1);
     }

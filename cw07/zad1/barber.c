@@ -16,7 +16,43 @@ int shmid = -1;
 struct shop_data* shop;
 
 void handle_shop(){
-    // TODO
+
+    while(1) {
+
+        take_semaphore(shop_semaphore, SEMAPHORE_DATA);
+
+        // if there are clients waiting in waiting room
+        if (queue_length(shop) > 0) {
+
+            // invite client
+            int pid = queue_pop(shop);
+            printf("[%s] [BARBER] Invited client %d\n", get_time(), pid);
+            send_signal(pid);
+            give_semaphore(shop_semaphore, SEMAPHORE_DATA);
+
+            // wait for client to sit on chair
+            take_semaphore(shop_semaphore, SEMAPHORE_CHAIR);
+
+        // waiting room is empty -> fall asleep
+        } else {
+
+            // falls asleep
+            printf("[%s] [BARBER] Falls asleep\n", get_time());
+            shop->barber_status = BARBER_STATUS_SLEEPING;
+            give_semaphore(shop_semaphore, SEMAPHORE_DATA);
+
+            // wait for client to wake him up
+            take_semaphore(shop_semaphore, SEMAPHORE_CHAIR);
+            printf("[%s] [BARBER] Wakes up\n", get_time());
+        }
+
+        printf("[%s] [BARBER] Starts cutting client %d\n", get_time(), shop->chair);
+        printf("[%s] [BARBER] Ends cutting client %d\n", get_time(), shop->chair);
+
+        // notify client
+        give_semaphore(shop_semaphore, SEMAPHORE_DONE);
+
+    }
 }
 
 void cleanup_shop(){
@@ -34,7 +70,7 @@ void cleanup_shop(){
 void cleanup_semaphores(){
 
     // remove semaphore
-    if(semctl(shop_semaphore, 0, IPC_RMID) == -1)
+    if(semctl(shop_semaphore, -1, IPC_RMID) == -1)
         perror("An error occurred while removing semaphore");
 
 }
@@ -71,12 +107,16 @@ void setup_shop(int seats_number){
     // setup shop queue
     queue_init(shop, seats_number);
 
+    // init barber
+    shop->barber_pid = getpid();
+    shop->barber_status = BARBER_STATUS_WORKING;
+
 }
 
 void setup_semaphores(){
 
     // create semaphore
-    shop_semaphore = semget(get_shop_key(), 1, IPC_CREAT | IPC_EXCL | S_IWUSR | S_IRUSR);
+    shop_semaphore = semget(get_shop_key(), 3, IPC_CREAT | IPC_EXCL | S_IWUSR | S_IRUSR);
     if(shop_semaphore == -1){
         perror("An error occurred while creating semaphore");
         exit(1);
@@ -84,8 +124,20 @@ void setup_semaphores(){
 
     // initialize semaphore
     union semun arg;
+    arg.val = 1;
+    if(semctl(shop_semaphore, SEMAPHORE_DATA, SETVAL, arg) == -1){
+        perror("An error occurred while initializing semaphore");
+        exit(1);
+    }
+
     arg.val = 0;
-    if(semctl(shop_semaphore, 0, SETVAL, arg) == -1){
+    if(semctl(shop_semaphore, SEMAPHORE_CHAIR, SETVAL, arg) == -1){
+        perror("An error occurred while initializing semaphore");
+        exit(1);
+    }
+
+    arg.val = 0;
+    if(semctl(shop_semaphore, SEMAPHORE_DONE, SETVAL, arg) == -1){
         perror("An error occurred while initializing semaphore");
         exit(1);
     }

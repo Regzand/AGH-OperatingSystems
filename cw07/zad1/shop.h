@@ -8,12 +8,24 @@
 #define SHOP_MAX_SEATS          20
 
 // shop statuses
-#define SHOP_STATUS_SLEEPING    1
-#define SHOP_STATUS_WORKING     2
+#define BARBER_STATUS_SLEEPING  1
+#define BARBER_STATUS_WORKING   2
+
+// signal used for waking up barber and inviting clients
+#define SHOP_SIGNAL             SIGRTMIN
+
+// semaphores
+#define SEMAPHORE_DATA          0
+#define SEMAPHORE_CHAIR         1
+#define SEMAPHORE_DONE          2
 
 // shop shared memory
 typedef struct shop_data {
-    int status;
+    int chair;
+
+    int barber_status;
+    int barber_pid;
+
     int queue_size;
     int queue_head;
     int queue_tail;
@@ -37,7 +49,6 @@ int queue_length(struct shop_data* shop);
 int queue_pop(struct shop_data* shop);
 
 // signals
-void wait_for_signal();
 void send_signal(int pid);
 
 // timing function

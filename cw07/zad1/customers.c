@@ -9,12 +9,63 @@
 
 #include "shop.h"
 
+int notified = 0;
 int shop_semaphore = -1;
 
 struct shop_data* shop;
 
 void visit_shop(){
-    // TODO
+
+    take_semaphore(shop_semaphore, SEMAPHORE_DATA);
+
+    // barber is sleeping -> wake him up
+    if(shop->barber_status == BARBER_STATUS_SLEEPING){
+        shop->barber_status = BARBER_STATUS_WORKING;
+        printf("[%s] [%06d] Wakes up barber\n", get_time(), getpid());
+
+    // barber is working go to waiting room
+    }else{
+
+        // if waiting room is full -> exit
+        if(queue_length(shop) >= shop->queue_size){
+            printf("[%s] [%06d] Leaves shop because waiting room is full\n", get_time(), getpid());
+            give_semaphore(shop_semaphore, SEMAPHORE_DATA);
+            return;
+        }
+
+        // temporary block signal
+        sigset_t mask, old_mask;
+        sigemptyset(&mask);
+        sigaddset(&mask, SHOP_SIGNAL);
+        sigprocmask(SIG_BLOCK, &mask, &old_mask);
+
+        // if not sit in queue and wait for barber
+        printf("[%s] [%06d] Sits down in waiting room\n", get_time(), getpid());
+        queue_push(shop, getpid());
+
+        notified = 0;
+
+        give_semaphore(shop_semaphore, SEMAPHORE_DATA);
+
+        while(notified == 0)
+            sigsuspend(&old_mask);
+
+        sigprocmask(SIG_SETMASK, &old_mask, NULL);
+
+        take_semaphore(shop_semaphore, SEMAPHORE_DATA);
+    }
+
+    // sit on chair and notify barber
+    printf("[%s] [%06d] Sits down on the chair\n", get_time(), getpid());
+    shop->chair = getpid();
+    give_semaphore(shop_semaphore, SEMAPHORE_DATA);
+    give_semaphore(shop_semaphore, SEMAPHORE_CHAIR);
+
+
+    // wait for barber to end and leave the shop and notify barber
+    take_semaphore(shop_semaphore, SEMAPHORE_DONE);
+
+    printf("[%s] [%06d] Leaves shop\n", get_time(), getpid());
 }
 
 void cleanup_shop(){
@@ -35,6 +86,10 @@ void handle_exit(){
     cleanup_semaphores();
     cleanup_shop();
 
+}
+
+void handle_shop_signal(int signo){
+    notified = 1;
 }
 
 void setup_shop(){
@@ -66,6 +121,29 @@ void setup_semaphores(){
 
 }
 
+void setup_shop_signal(){
+
+//    // sets up process signal mask
+//    sigset_t mask;
+//    sigemptyset(&mask);
+//    sigaddset(&mask, SHOP_SIGNAL);
+//    if(sigprocmask(SIG_BLOCK, &mask, NULL) == -1){
+//        perror("An error occurred while setting up process signal mask");
+//        exit(1);
+//    }
+
+    // sets up shop signal handler
+    struct sigaction sa;
+    sa.sa_handler = handle_shop_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if(sigaction(SHOP_SIGNAL, &sa, NULL) == -1) {
+        perror("An error occurred while setting up handler for shop signal");
+        exit(1);
+    }
+
+}
+
 void setup_atexit(){
 
     // sets up function to be called at exit
@@ -80,6 +158,7 @@ void customer_main(int visits_number){
 
     // setup
     setup_atexit();
+    setup_shop_signal();
     setup_semaphores();
     setup_shop();
 
