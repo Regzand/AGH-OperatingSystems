@@ -29,7 +29,7 @@ void handle_shop(){
         if (queue_length(shop) > 0) {
 
             // invite client
-            int pid = queue_pop(shop);
+            int pid = queue_top(shop);
             printf("[%s] [BARBER] Invited client %d\n", get_time(), pid);
             send_signal(pid);
             give_semaphore(semaphore_data);
@@ -55,6 +55,9 @@ void handle_shop(){
 
         // notify client
         give_semaphore(semaphore_done);
+        
+        // wait for client to leave
+        take_semaphore(semaphore_chair);
 
     }
 }

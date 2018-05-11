@@ -21,7 +21,7 @@ sem_t* semaphore_done;
 
 struct shop_data* shop;
 
-void visit_shop(){
+int visit_shop(){
 
     take_semaphore(semaphore_data);
 
@@ -37,7 +37,7 @@ void visit_shop(){
         if(queue_length(shop) >= shop->queue_size){
             printf("[%s] [%06d] Leaves shop because waiting room is full\n", get_time(), getpid());
             give_semaphore(semaphore_data);
-            return;
+            return 0;
         }
 
         // temporary block signal
@@ -60,6 +60,7 @@ void visit_shop(){
         sigprocmask(SIG_SETMASK, &old_mask, NULL);
 
         take_semaphore(semaphore_data);
+        queue_pop(shop);
     }
 
     // sit on chair and notify barber
@@ -73,6 +74,10 @@ void visit_shop(){
     take_semaphore(semaphore_done);
 
     printf("[%s] [%06d] Leaves shop\n", get_time(), getpid());
+    
+    give_semaphore(semaphore_chair);
+    
+    return 1;
 }
 
 void cleanup_shop(){
@@ -181,8 +186,7 @@ void customer_main(int visits_number){
     setup_shop();
 
     // visit shop
-    for(int i = 0; i < visits_number; i++)
-        visit_shop();
+    for(int i = 0; i < visits_number; i += visit_shop());
 
     // this is THE END
     exit(0);

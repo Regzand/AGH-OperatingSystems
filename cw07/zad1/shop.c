@@ -75,6 +75,13 @@ int queue_pop(struct shop_data* shop){
     return result;
 }
 
+int queue_top(struct shop_data* shop){
+	if(queue_length(shop) == 0)
+        return -1;
+       
+    return shop -> queue[(shop -> queue_head) % (shop -> queue_size)];
+}
+
 int queue_length(struct shop_data* shop){
     return shop -> queue_tail - shop -> queue_head;
 }

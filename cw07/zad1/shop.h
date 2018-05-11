@@ -47,6 +47,7 @@ void queue_init(struct shop_data* shop, int size);
 void queue_push(struct shop_data* shop, int value);
 int queue_length(struct shop_data* shop);
 int queue_pop(struct shop_data* shop);
+int queue_top(struct shop_data* shop);
 
 // signals
 void send_signal(int pid);
