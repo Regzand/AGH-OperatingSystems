@@ -1,0 +1,133 @@
+===========================================
+==              FILTER 3x3               ==
+===========================================
+
+Loaded image 640x480 with coding 255
+Loaded filter 3x3
+Filtering using 1 threads completed in:
+	Real:	0.022966
+	User:	0.022766
+	System:	0.000174
+
+Loaded image 640x480 with coding 255
+Loaded filter 3x3
+Filtering using 2 threads completed in:
+	Real:	0.013100
+	User:	0.025885
+	System:	0.000117
+
+Loaded image 640x480 with coding 255
+Loaded filter 3x3
+Filtering using 4 threads completed in:
+	Real:	0.010660
+	User:	0.035661
+	System:	0.000223
+
+Loaded image 640x480 with coding 255
+Loaded filter 3x3
+Filtering using 8 threads completed in:
+	Real:	0.010738
+	User:	0.029886
+	System:	0.003736
+
+
+
+===========================================
+==             FILTER 20x20              ==
+===========================================
+
+Loaded image 640x480 with coding 255
+Loaded filter 20x20
+Filtering using 1 threads completed in:
+	Real:	0.797947
+	User:	0.797708
+	System:	0.000000
+
+Loaded image 640x480 with coding 255
+Loaded filter 20x20
+Filtering using 2 threads completed in:
+	Real:	0.445112
+	User:	0.874620
+	System:	0.000149
+
+Loaded image 640x480 with coding 255
+Loaded filter 20x20
+Filtering using 4 threads completed in:
+	Real:	0.388008
+	User:	1.403807
+	System:	0.000000
+
+Loaded image 640x480 with coding 255
+Loaded filter 20x20
+Filtering using 8 threads completed in:
+	Real:	0.363241
+	User:	1.406017
+	System:	0.004013
+
+
+
+===========================================
+==             FILTER 40x40              ==
+===========================================
+
+Loaded image 640x480 with coding 255
+Loaded filter 40x40
+Filtering using 1 threads completed in:
+	Real:	3.048513
+	User:	3.048137
+	System:	0.000000
+
+Loaded image 640x480 with coding 255
+Loaded filter 40x40
+Filtering using 2 threads completed in:
+	Real:	1.626162
+	User:	3.229085
+	System:	0.000000
+
+Loaded image 640x480 with coding 255
+Loaded filter 40x40
+Filtering using 4 threads completed in:
+	Real:	1.486358
+	User:	5.700929
+	System:	0.000090
+
+Loaded image 640x480 with coding 255
+Loaded filter 40x40
+Filtering using 8 threads completed in:
+	Real:	1.457706
+	User:	5.703712
+	System:	0.000080
+
+
+
+===========================================
+==             FILTER 65x65              ==
+===========================================
+
+Loaded image 640x480 with coding 255
+Loaded filter 65x65
+Filtering using 1 threads completed in:
+	Real:	8.157577
+	User:	8.156889
+	System:	0.000000
+
+Loaded image 640x480 with coding 255
+Loaded filter 65x65
+Filtering using 2 threads completed in:
+	Real:	4.173123
+	User:	8.344875
+	System:	0.000297
+
+Loaded image 640x480 with coding 255
+Loaded filter 65x65
+Filtering using 4 threads completed in:
+	Real:	4.273619
+	User:	16.392752
+	System:	0.007995
+
+Loaded image 640x480 with coding 255
+Loaded filter 65x65
+Filtering using 8 threads completed in:
+	Real:	4.274569
+	User:	16.334610
+	System:	0.004183
