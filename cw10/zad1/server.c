@@ -14,9 +14,6 @@
 
 #include "common.h"
 
-// clients
-client clients[MAX_CLIENTS];
-
 // tasks counter
 int tasks = 0;
 
@@ -28,77 +25,26 @@ int local_socket;
 int port;
 char *path;
 
-void *main_receiver() {
-    // TODO
-    return 0;
-}
-
 void *main_pinger() {
-    // TODO
-    return 0;
+    while(1){
+
+        // TODO: Ping clients
+
+    }
 }
 
-void *main_connections() {
+void *main_server() {
+    while(1){
 
-    // create poll of server sockets
-    struct pollfd sockets[2];
-    sockets[0].fd = net_socket;
-    sockets[1].fd = local_socket;
-    sockets[0].events = POLLIN;
-    sockets[1].events = POLLIN;
+        // TODO: Handle connections
 
-    // handle connections
-    while (1) {
-
-        // wait for new connection on sockets
-        if(poll(sockets, 2, -1) == -1)
-            error("An error occurred while pooling server sockets");
-
-        // check net socket
-        if(sockets[0].revents && POLLIN) {
-
-            // incoming connection details
-            int fd;
-            struct sockaddr_in addr;
-            socklen_t addr_length = sizeof(struct sockaddr_in);
-
-            // accept connection
-            fd = accept(net_socket, (struct sockaddr *) &addr, &addr_length);
-            if (fd == -1)
-                error("An error occurred while accepting connection on net socket");
-
-            // logging
-            printf("New connection from %s:%d\n", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
-        }
-
-        // check local socket
-        if(sockets[1].revents && POLLIN) {
-
-            // incoming connection details
-            int fd;
-
-            // accept connection
-            fd = accept(local_socket, NULL, NULL);
-            if (fd == -1)
-                error("An error occurred while accepting connection on local socket");
-
-            // logging
-            printf("New local connection\n");
-        }
     }
 }
 
 void handle_console() {
     while (1) {
 
-        // create task
-        task t;
-        t.id = tasks++;
-
-        // read task
-        scanf("%d %c %d", &t.arg1, &t.op, &t.arg2);
-
-        // TODO: send task
+        // TODO: Handle console
 
     }
 }
@@ -128,15 +74,6 @@ void handle_exit() {
 
 }
 
-void setup_receiver_thread() {
-
-    // create thread for receiving responses
-    pthread_t tid;
-    if (pthread_create(&tid, NULL, main_receiver, NULL) != 0)
-        error("An error occurred while creating receiver thread");
-
-}
-
 void setup_pinger_thread() {
 
     // create thread for pinging clients
@@ -146,12 +83,12 @@ void setup_pinger_thread() {
 
 }
 
-void setup_connections_thread() {
+void setup_server_thread() {
 
-    // create thread for accepting connections
+    // create thread for handling incoming messages
     pthread_t tid;
-    if (pthread_create(&tid, NULL, main_connections, NULL) != 0)
-        error("An error occurred while creating connections thread");
+    if (pthread_create(&tid, NULL, main_server, NULL) != 0)
+        error("An error occurred while creating server thread");
 
 }
 
@@ -251,8 +188,7 @@ int main(int argc, char **args) {
     setup_net_socket();
     setup_local_socket();
 
-    setup_connections_thread();
-    setup_receiver_thread();
+    setup_server_thread();
     setup_pinger_thread();
 
     handle_console();

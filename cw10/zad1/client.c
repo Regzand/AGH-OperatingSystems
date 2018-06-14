@@ -26,7 +26,7 @@ int port;
 void handle_requests() {
 
     while (1) {
-
+        // TODO: handle incoming requests
     }
 
 }
