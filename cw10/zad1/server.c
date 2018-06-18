@@ -15,7 +15,7 @@
 #include "../utils/log.h"
 #include "common.h"
 
-// TODO: check mutexes
+// TODO: check mutexes (and logging)
 
 int closed = 0; // FIXME: This might be not needed
 
@@ -48,15 +48,9 @@ char *path;
 
 void remove_client(int id) {
 
-    // lock access to data
-    pthread_mutex_lock(&mutex_data);
-
     clients[id].fd = -1;
     clients[id].name[0] = '\0';
     clients[id].status = 0;
-
-    // unlock access to data
-    pthread_mutex_unlock(&mutex_data);
 
 }
 
@@ -75,6 +69,7 @@ int get_free_id() {
     for (int i = 0; i < MAX_CLIENTS; i++)
         if (clients[i].fd == -1)
             return i;
+
     return -1;
 }
 
@@ -82,19 +77,22 @@ int get_id_by_name(const char *name) {
     for (int i = 0; i < MAX_CLIENTS; i++)
         if (strcmp(clients[i].name, name) == 0)
             return i;
+
     return -1;
 }
 
 int last_index = 0;
 
 int get_next_client() {
+
     for (int i = 1; i <= MAX_CLIENTS; i++) {
         int index = (last_index + i) % MAX_CLIENTS;
-        if (clients[index].status & STATUS_REGISTERED) {
+        if (clients[index].status & STATUS_REGISTERED){
             last_index = index;
             return index;
         }
     }
+
     return -1;
 }
 
@@ -141,6 +139,9 @@ void handle_message_register(int id, const char *name) {
         return;
     }
 
+    // lock access to data
+    pthread_mutex_lock(&mutex_data);
+
     // set client name and status
     strcpy(clients[id].name, name);
     clients[id].status |= STATUS_REGISTERED;
@@ -150,6 +151,9 @@ void handle_message_register(int id, const char *name) {
 
     // logging
     log_info("Client %d registered as '%s'", id, clients[id].name);
+
+    // unlock access to data
+    pthread_mutex_unlock(&mutex_data);
 
 }
 
@@ -260,7 +264,8 @@ void handle_message(int id) {
 
     // read message
     struct message msg;
-    read_message(clients[id].fd, &msg);
+    if(read_message(clients[id].fd, &msg) == 0)
+        return;
 
     // handle message
     if (msg.type == MSG_REGISTER)
@@ -296,22 +301,36 @@ void *handle_pinger() {
         // wait interval
         sleep(PINGER_INTERVAL);
 
+        // lock access to data
+        pthread_mutex_lock(&mutex_data);
+
         // get client
         int id = get_next_client();
-        if (id == -1)
+        if (id == -1) {
+
+            // unlock access to data
+            pthread_mutex_unlock(&mutex_data);
+
             continue;
+        }
 
         // set client status
         clients[id].status |= STATUS_PINGED;
-
 
         // send ping
         send_message(clients[id].fd, MSG_PING, NULL, 0);
 
         // logging
         log_trace("Pinged client '%s'", clients[id].name);
+
+        // unlock access to data
+        pthread_mutex_unlock(&mutex_data);
+
         // wait for pong
         sleep(PINGER_TIMEOUT);
+
+        // lock access to data
+        pthread_mutex_lock(&mutex_data);
 
         // check if was pinged
         if (clients[id].status & STATUS_PINGED) {
@@ -323,6 +342,9 @@ void *handle_pinger() {
             remove_client(id);
 
         }
+
+        // unlock access to data
+        pthread_mutex_unlock(&mutex_data);
 
     }
 }
@@ -369,11 +391,6 @@ void *handle_server() {
         if (sockets[MAX_CLIENTS + 1].revents && POLLIN && !closed)
             accept_local();
 
-        // handle errors
-        for (int i = 0; i < MAX_CLIENTS; i++)
-            if (sockets[i].revents & POLLERR)
-                log_error("An error reported by pool on client '%s' (id %d)", clients[i].name, i);
-
         // handle disconnections
         for (int i = 0; i < MAX_CLIENTS; i++)
             if ((sockets[i].revents & POLLHUP))
@@ -407,11 +424,18 @@ void handle_console() {
             continue;
         }
 
+        // lock access to data
+        pthread_mutex_lock(&mutex_data);
+
         // get client
         int id = get_next_client();
 
         if (id == -1) {
             log_error("No clients available to perform this task");
+
+            // unlock access to data
+            pthread_mutex_unlock(&mutex_data);
+
             continue;
         }
 
@@ -420,6 +444,9 @@ void handle_console() {
 
         // logging
         log_info("Sent task #%d to client '%s': %s %d %d", data[0], clients[id].name, op, data[2], data[3]);
+
+        // unlock access to data
+        pthread_mutex_unlock(&mutex_data);
 
     }
 }
@@ -576,6 +603,8 @@ void parse_arguments(int argc, char **args) {
 }
 
 int main(int argc, char **args) {
+
+    setup_logger();
 
     parse_arguments(argc, args);
 

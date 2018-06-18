@@ -3,9 +3,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include "../utils/log.h"
 #include "common.h"
+
+pthread_mutex_t mutex_log = PTHREAD_MUTEX_INITIALIZER;
 
 void send_message(int fd, int type, const void *data, size_t len) {
 
@@ -74,4 +77,17 @@ int calculate(int op, int arg1, int arg2){
         return arg1 / arg2;
     return 0;
 
+}
+
+void logger_lock(void *udata, int lock){
+    if(lock)
+        pthread_mutex_lock(udata);
+    else
+        pthread_mutex_unlock(udata);
+}
+
+void setup_logger(){
+    log_set_udata(&mutex_log);
+    log_set_lock(logger_lock);
+    log_set_level(LOGGER_LEVEL);
 }

@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-
+#include "../utils/log.h"
 
 //==================================================
 // SETTINGS
@@ -13,7 +13,7 @@
 #define PROTOCOL            SOCK_STREAM
 
 // server settings
-#define PINGER_INTERVAL     1
+#define PINGER_INTERVAL     2
 #define PINGER_TIMEOUT      1
 #define MAX_CLIENTS         20
 
@@ -39,6 +39,8 @@
 #define OP_MUL              2
 #define OP_DIV              3
 
+// logger
+#define LOGGER_LEVEL        LOG_DEBUG
 
 
 //==================================================
@@ -74,5 +76,11 @@ char* operation_to_string(int op);
 int string_to_operation(char* op);
 int calculate(int op, int arg1, int arg2);
 
+
+
+//==================================================
+// LOGGING
+//==================================================
+void setup_logger();
 
 #endif

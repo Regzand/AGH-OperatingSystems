@@ -51,14 +51,13 @@ void handle_message_ping(){
     send_message(socket_fd, MSG_PING, NULL, 0);
 
     // logging
-    log_debug("Pinged back");
+    log_trace("Pinged back");
 
 }
 
 void handle_messages() {
 
     while (1) {
-        // TODO: handle disconnects
 
         // wait for message
         struct message msg;
@@ -216,6 +215,8 @@ void parse_arguments(int argc, char **args) {
 }
 
 int main(int argc, char **args) {
+
+    setup_logger();
 
     parse_arguments(argc, args);
 
